@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.fandow</groupId>
     <artifactId>oa-staff</artifactId>
@@ -12,7 +12,9 @@
         <java.version>11</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spring-boot.version>2.4.0-M3</spring-boot.version>
+        <spring-boot.version>2.4.0</spring-boot.version>
+        <oa-common.version>2.0.0-SNAPSHOT</oa-common.version>
+        <tomcat-embed-programmatic-version>9.0.38.1-dev</tomcat-embed-programmatic-version>
     </properties>
 
     <dependencies>
@@ -25,7 +27,64 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.vintage</groupId>
+                    <artifactId>junit-vintage-engine</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring-boot.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.tomcat.embed</groupId>
+                    <artifactId>tomcat-embed-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.tomcat.embed</groupId>
+                    <artifactId>tomcat-embed-websocket</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat.experimental</groupId>
+            <artifactId>tomcat-embed-programmatic</artifactId>
+            <version>${tomcat-embed-programmatic-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.experimental</groupId>
+            <artifactId>spring-graalvm-native</artifactId>
+            <version>0.8.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fandow.framework</groupId>
+            <artifactId>oa-common-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-web</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.22</version>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>
@@ -37,8 +96,77 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context-indexer</artifactId>
+            </dependency>
+
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <version>3.4.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fandow.framework</groupId>
+                <artifactId>oa-common-web</artifactId>
+                <version>${oa-common.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
+
+    <profiles>
+        <profile>
+            <id>native</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.graalvm.nativeimage</groupId>
+                        <artifactId>native-image-maven-plugin</artifactId>
+                        <version>20.3.0</version>
+                        <configuration>
+                            <mainClass>com.fandow.oa.OaStaffApplication</mainClass>
+                            <buildArgs>
+                                -Dspring.graal.skip-logback=true
+                                -Dspring.graal.verbose=true
+                                -Dspring.native.remove-yaml-support=true
+                                -Dspring.spel.ignore=true
+                                --trace-class-initialization=org.springframework.util.unit.DataSize
+                                --report-unsupported-elements-at-runtime
+                                --enable-https
+                                -H:+ReportUnsupportedElementsAtRuntime
+                                -H:+AddAllCharsets
+                                --allow-incomplete-classpath
+                                --report-unsupported-elements-at-runtime -H:+ReportExceptionStackTraces
+                                --no-server
+                                -H:IncludeResourceBundles=javax.servlet.http.LocalStrings
+                                -H:IncludeResourceBundles=javax.servlet.LocalStrings
+                                --initialize-at-run-time=io.netty.channel.unix.Socket
+                                --initialize-at-run-time=io.netty.channel.unix.IovArray
+                                --initialize-at-run-time=io.netty.channel.epoll.EpollEventLoop
+                                --initialize-at-run-time=io.netty.channel.unix.Errors
+                                --initialize-at-build-time=org.springframework.util.unit.DataSize
+                            </buildArgs>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>native-image</goal>
+                                </goals>
+                                <phase>package</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <build>
         <plugins>
@@ -55,9 +183,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.4.0-M3</version>
+                <version>2.4.0</version>
                 <configuration>
-                    <mainClass>com.fandow.oastaff.OaStaffApplication</mainClass>
+                    <mainClass>com.fandow.oa.OaStaffApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>

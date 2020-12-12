@@ -1,4 +1,4 @@
-package com.fandow.oastaff;
+package com.fandow.oa;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

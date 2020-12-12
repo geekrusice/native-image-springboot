@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fandow.oa.infrastructure.mapper.OaActivityLogMapper">
+  <resultMap id="BaseResultMap" type="com.fandow.oa.domain.po.OaActivityLog">
+    <!--@mbg.generated-->
+    <!--@Table oa_activity_log-->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="createrid" jdbcType="INTEGER" property="createrid" />
+    <result column="creater" jdbcType="VARCHAR" property="creater" />
+    <result column="applyDeptId" jdbcType="INTEGER" property="applydeptid" />
+    <result column="applyDept" jdbcType="VARCHAR" property="applydept" />
+    <result column="createtime" jdbcType="INTEGER" property="createtime" />
+    <result column="controller" jdbcType="VARCHAR" property="controller" />
+    <result column="action" jdbcType="VARCHAR" property="action" />
+    <result column="url" jdbcType="LONGVARCHAR" property="url" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, createrid, creater, applyDeptId, applyDept, createtime, controller, `action`, 
+    url
+  </sql>
+</mapper>
