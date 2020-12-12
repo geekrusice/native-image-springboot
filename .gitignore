@@ -29,3 +29,5 @@ build/
 
 ### VS Code ###
 .vscode/
+src/main/resources/mapper/.DS_Store
+src/main/resources/.DS_Store
